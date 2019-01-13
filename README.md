@@ -7,7 +7,7 @@ Universal Telegram Bot library: https://github.com/witnessmenow/Universal-Arduin
 
 Requires ESP8266 version 2.5 and Arduino Json Version 5.X.X (not V6)
 
-Hardware:
+### Hardware:
 
 [Wemos D1 Mini*](http://s.click.aliexpress.com/e/uzFUnIe)
 
