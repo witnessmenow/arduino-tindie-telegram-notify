@@ -29,8 +29,8 @@
 
 //------- Replace the following! ------
 
-char ssid[] = "Mikrotik";         // your network SSID (name)
-char password[] = "carolinebrian"; // your network password
+char ssid[] = "SSID";         // your network SSID (name)
+char password[] = "password"; // your network password
 
 #define TINDIE_API_KEY "1234567890654rfscFfsdfdsffd"
 // API Key can be retrieved from here
