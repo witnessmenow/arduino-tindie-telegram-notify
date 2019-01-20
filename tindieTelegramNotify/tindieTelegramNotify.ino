@@ -29,8 +29,8 @@
 
 //------- Replace the following! ------
 
-char ssid[] = "Mikrotik";         // your network SSID (name)
-char password[] = "carolinebrian"; // your network password
+char ssid[] = "SSID";         // your network SSID (name)
+char password[] = "password"; // your network password
 
 #define TINDIE_API_KEY "1234567890654rfscFfsdfdsffd"
 // API Key can be retrieved from here
@@ -103,6 +103,7 @@ void setup()
 
   // If you want to enable some extra debugging
   //tindie._debug = true;
+  //bot._debug = true;
 }
 
 bool loadConfig() {
@@ -156,11 +157,25 @@ bool saveConfig() {
 bool sendTelegramMessage(OrderInfo orderInfo) {
   String message = "New order from " + String(orderInfo.shipping_country) + "!\n\n";
   message += "They bought " + String(orderInfo.number_of_products) + " different product(s) for a total of $" + String(orderInfo.total_subtotal) + ".\n\n";
+  
+  int numProductInfo = orderInfo.number_of_products;
+  if (orderInfo.number_of_products > TINDIE_MAX_PRODUCTS_IN_ORDER)
+  {
+    numProductInfo = TINDIE_MAX_PRODUCTS_IN_ORDER;
+  }
+  for (int i = 0; i < numProductInfo; i++)
+  {
+    message += "- " + String(orderInfo.products[i].quantity) + " no. " + String(orderInfo.products[i].product) + " " + String(orderInfo.products[i].options) + "\n";
+  }
+
+  message += "\n";
+  
   char url[50];
   sprintf(url, TINDIE_ORDER_URL_FORMAT, orderInfo.number);
   message += String(url);
 
   client.setFingerprint(TELEGRAM_FINGERPRINT);
+  //Serial.print(message);
   bool responseStatus = bot.sendMessage(TELEGRAM_CHAT_ID, message, "Markdown");
 
   //Set it back to the Tindie fingerprint
@@ -180,15 +195,19 @@ void loop()
     Serial.println("Checking Tindie");
     OrderInfo orderInfo = tindie.getOrderInfo(0, 0); // offset 0, shipped status 0 (false)
     if (!orderInfo.error) {
-      if (orderInfo.number != lastOrderNumber) {
-        Serial.println("New Order!");
-        if (sendTelegramMessage(orderInfo)) {
-          Serial.println("Sent succesfully!");
-          lastOrderNumber = orderInfo.number;
-          saveConfig();
+      if (orderInfo.number != 0) {
+        if (orderInfo.number != lastOrderNumber) {
+          Serial.println("New Order!");
+          if (sendTelegramMessage(orderInfo)) {
+            Serial.println("Sent succesfully!");
+            lastOrderNumber = orderInfo.number;
+            saveConfig();
+          }
+        } else {
+          Serial.println("Already processed this order");
         }
       } else {
-        Serial.println("Already processed this order");
+        Serial.println("No unshipped orders");
       }
     } else {
       Serial.println("Error getting info");
